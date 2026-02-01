@@ -930,8 +930,6 @@ GameObject:
   - component: {fileID: -5559382680376072910}
   - component: {fileID: 5368311271925760273}
   - component: {fileID: 4580791534144134911}
-  - component: {fileID: 3072408285295335016}
-  - component: {fileID: -6879262144120118552}
   m_Layer: 10
   m_Name: SPUM_20240911215639405
   m_TagString: Player
@@ -4046,8 +4044,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2b78cadba380e248be44b45ec9cfb21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forcedTarget: {fileID: 0}
-  buffs: {fileID: 0}
   splitLateralSpacing: 0.25
   projectilePrefab: {fileID: 3095502945020802562, guid: 86220067839ed4d4a99771f66031d58a, type: 3}
   spiritOrbPrefab: {fileID: 821328322459223065, guid: 64e65386cfadcf74398e4b30695fb37a, type: 3}
@@ -4117,51 +4113,6 @@ MonoBehaviour:
   godMode: 1
   toggleKey: 282
   healToFullOnEnable: 1
---- !u!114 &3072408285295335016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2832778511305924686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9309b39d532adf4b90ddd6afb94b2d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damageMult: 1
-  fireRateMult: 1
-  projectileSpeedMult: 1
-  moveSpeedMult: 1
-  pierceBonus: 0
-  extraProjectilesBonus: 0
-  supportShots: 0
-  echoEnabled: 0
-  echoChance: 0
-  echoDelay: 0.25
-  echoDamageMult: 0.35
-  damageTakenMult: 1
-  superArmor: 0
---- !u!114 &-6879262144120118552
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2832778511305924686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 460749355182c2549af807a3c8145655, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stats: {fileID: -2057220070809221329}
-  shooter: {fileID: -5559382680376072910}
-  buffs: {fileID: 3072408285295335016}
-  gaugeMax: 100
-  gaugePerSecond: 4
-  gaugePerKill: 8
-  activateKey: 32
-  _gauge: 0
 --- !u!1 &2879556254736732601
 GameObject:
   m_ObjectHideFlags: 0
