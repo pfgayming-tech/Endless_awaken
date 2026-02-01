@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3e7b368465258e744ba76c20fa960020
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 204175
+  packageName: InfiniTile - Endless 2D Runner Background
+  packageVersion: 1.0.1
+  assetPath: Assets/SindriStudios/Prefabs/Tile.prefab
+  uploadId: 491911

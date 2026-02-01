@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fdbc61dca3052094dadbb6c41317c34c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 204175
+  packageName: InfiniTile - Endless 2D Runner Background
+  packageVersion: 1.0.1
+  assetPath: Assets/SindriStudios/Scripts/Endless2D.cs
+  uploadId: 491911

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7687905c3a8e9364d97d29bf8627dc22
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 204175
+  packageName: InfiniTile - Endless 2D Runner Background
+  packageVersion: 1.0.1
+  assetPath: Assets/SindriStudios/Scripts/Pooler/IPooledObject.cs
+  uploadId: 491911
