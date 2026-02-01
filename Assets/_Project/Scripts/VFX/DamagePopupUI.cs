@@ -7,43 +7,71 @@ namespace VSL.VFX
     public class DamagePopupUI : MonoBehaviour
     {
         [Header("Refs")]
-        public TMP_Text text;                // TextMeshProUGUI
+        public TMP_Text text; // TextMeshProUGUI
 
         [Header("Anim (unscaled)")]
-        public float life = 0.7f;            // Áö¼Ó½Ã°£
-        public float floatPixels = 60f;      // À§·Î ¶ß´Â ÇÈ¼¿
-        public Vector2 randomJitter = new Vector2(10f, 0f); // »ìÂ¦ Èçµé¸²(¼±ÅÃ)
+        public float life = 0.7f;                        // ì§€ì† ì‹œê°„
+        public float floatPixels = 60f;                  // ìœ„ë¡œ ëœ¨ëŠ” í”½ì…€
+        public Vector2 randomJitter = new Vector2(10f, 0f); // ì‚´ì§ í”ë“¤ë¦¼(ì„ íƒ)
 
-        public event Action<DamagePopupUI> Finished;
+        public event System.Action<DamagePopupUI> Finished;
 
         RectTransform _rt;
         float _t;
-        Color _baseColor;
         Vector2 _start;
+
+        Color _baseColor;
+        float _baseFontSize;
+        Vector3 _baseScale;
 
         void Awake()
         {
             _rt = GetComponent<RectTransform>();
             if (text == null) text = GetComponentInChildren<TMP_Text>(true);
-            if (text != null) _baseColor = text.color;
+
+            if (text != null)
+            {
+                _baseColor = text.color;
+                _baseFontSize = text.fontSize;
+            }
+
+            _baseScale = (_rt != null) ? _rt.localScale : Vector3.one;
         }
 
+        // ê¸°ì¡´ API ìœ ì§€
         public void Play(int amount, Vector2 anchoredPos)
+        {
+            PlayStyled(amount, anchoredPos, null, 1f, 1f);
+        }
+
+        // âœ… ìŠ¤íƒ€ì¼ ì§€ì›(ìƒ‰/ìŠ¤ì¼€ì¼/í°íŠ¸ í¬ê¸°)
+        public void PlayStyled(int amount, Vector2 anchoredPos, Color? colorOverride, float scaleMult, float fontSizeMult)
         {
             _t = 0f;
 
-            // ½ÃÀÛ À§Ä¡ + ¾à°£ ·£´ı(°¡½Ã¼º/°ãÄ§ °³¼±)
+            // ì‹œì‘ ìœ„ì¹˜ + ì•½ê°„ ëœë¤(ê°€ë…ì„± ê°œì„ )
             if (randomJitter.x != 0f || randomJitter.y != 0f)
                 anchoredPos += new Vector2(UnityEngine.Random.Range(-randomJitter.x, randomJitter.x),
                                            UnityEngine.Random.Range(-randomJitter.y, randomJitter.y));
 
             _start = anchoredPos;
-            if (_rt != null) _rt.anchoredPosition = anchoredPos;
+
+            if (_rt != null)
+            {
+                _rt.anchoredPosition = anchoredPos;
+                _rt.localScale = _baseScale * Mathf.Max(0.01f, scaleMult);
+            }
 
             if (text != null)
             {
                 text.text = amount.ToString();
-                text.color = _baseColor; // ¾ËÆÄ º¹±¸
+
+                // ìŠ¤íƒ€ì¼ ì ìš©
+                text.fontSize = _baseFontSize * Mathf.Max(0.01f, fontSizeMult);
+
+                var c = colorOverride.HasValue ? colorOverride.Value : _baseColor;
+                c.a = 1f; // ì•ŒíŒŒëŠ” ì—¬ê¸°ì„œ ê³ ì •í•˜ê³  Updateì—ì„œ í˜ì´ë“œ
+                text.color = c;
             }
 
             gameObject.SetActive(true);
@@ -51,7 +79,7 @@ namespace VSL.VFX
 
         void Update()
         {
-            // Time.timeScale=0ÀÌ¾îµµ UI´Â ¶°¾ßÇÏ¹Ç·Î unscaled »ç¿ë
+            // Time.timeScale=0ì´ì–´ë„ UIëŠ” ë– ì•¼ í•˜ë¯€ë¡œ unscaled ì‚¬ìš©
             _t += Time.unscaledDeltaTime;
             float k = Mathf.Clamp01(_t / Mathf.Max(0.01f, life));
 

@@ -3988,7 +3988,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectileSizeMult: 1
-  job: 0
+  job: 2
   weaponType: 0
   damage: 0
   fireRate: 0

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,41 +27,145 @@ namespace VSL.UI
 
         private void Start()
         {
-            // dropdown 채우기
-            if (jobDropdown != null)
-            {
-                jobDropdown.ClearOptions();
-                jobDropdown.AddOptions(new System.Collections.Generic.List<string>
-                {
-                    "Knight","Archer","Mage","Fighter","SpiritMaster"
-                });
-
-                jobDropdown.onValueChanged.RemoveAllListeners();
-                jobDropdown.onValueChanged.AddListener(OnJobChanged);
-            }
-
-            HookButtons();
+            BuildJobDropdown();
+            Hook();
             Refresh();
         }
 
-        private void HookButtons()
+        private void BuildJobDropdown()
         {
-            if (toggleA != null)
-                toggleA.onValueChanged.AddListener(v => { if (v) SetSelected(0); });
+            if (jobDropdown == null) return;
 
-            if (toggleB != null)
-                toggleB.onValueChanged.AddListener(v => { if (v) SetSelected(1); });
+            jobDropdown.onValueChanged.RemoveAllListeners();
+            jobDropdown.ClearOptions();
 
-            if (aPlus != null) aPlus.onClick.AddListener(() => AddLevel(isA:true, +1));
-            if (aMinus != null) aMinus.onClick.AddListener(() => AddLevel(isA:true, -1));
+            jobDropdown.AddOptions(new List<string>
+            {
+                "Knight","Archer","Mage","Fighter","SpiritMaster"
+            });
 
-            if (bPlus != null) bPlus.onClick.AddListener(() => AddLevel(isA:false, +1));
-            if (bMinus != null) bMinus.onClick.AddListener(() => AddLevel(isA:false, -1));
+            jobDropdown.SetValueWithoutNotify(JobToIndex(_job));
+            jobDropdown.RefreshShownValue();
+
+            jobDropdown.onValueChanged.AddListener(i =>
+            {
+                _job = IndexToJob(i);
+                Refresh();
+            });
         }
 
-        private void OnJobChanged(int idx)
+        private void Hook()
         {
-            _job = idx switch
+            if (toggleA != null)
+            {
+                toggleA.onValueChanged.RemoveAllListeners();
+                toggleA.onValueChanged.AddListener(v =>
+                {
+                    if (!v) return;
+                    SaveService.SetUltSelectedSlot(_job, UltimateSlot.A);
+                    Refresh();
+                });
+            }
+
+            if (toggleB != null)
+            {
+                toggleB.onValueChanged.RemoveAllListeners();
+                toggleB.onValueChanged.AddListener(v =>
+                {
+                    if (!v) return;
+                    SaveService.SetUltSelectedSlot(_job, UltimateSlot.B);
+                    Refresh();
+                });
+            }
+
+            if (aPlus != null)
+            {
+                aPlus.onClick.RemoveAllListeners();
+                aPlus.onClick.AddListener(() =>
+                {
+                    SaveService.TryChangeUltLevel(_job, UltimateSlot.A, +1);
+                    Refresh();
+                });
+            }
+
+            if (aMinus != null)
+            {
+                aMinus.onClick.RemoveAllListeners();
+                aMinus.onClick.AddListener(() =>
+                {
+                    SaveService.TryChangeUltLevel(_job, UltimateSlot.A, -1);
+                    Refresh();
+                });
+            }
+
+            if (bPlus != null)
+            {
+                bPlus.onClick.RemoveAllListeners();
+                bPlus.onClick.AddListener(() =>
+                {
+                    SaveService.TryChangeUltLevel(_job, UltimateSlot.B, +1);
+                    Refresh();
+                });
+            }
+
+            if (bMinus != null)
+            {
+                bMinus.onClick.RemoveAllListeners();
+                bMinus.onClick.AddListener(() =>
+                {
+                    SaveService.TryChangeUltLevel(_job, UltimateSlot.B, -1);
+                    Refresh();
+                });
+            }
+        }
+
+        private void Refresh()
+        {
+            int pts = SaveService.GetAvailablePoints(); // ✅ 직업 바꿔도 같은 포인트(공용 풀)
+            int aLv = SaveService.GetUltLevelA(_job);
+            int bLv = SaveService.GetUltLevelB(_job);
+            var sel = SaveService.GetUltSelectedSlot(_job);
+
+            if (pointsText != null) pointsText.text = $"Points: {pts}";
+            if (aLevelText != null) aLevelText.text = $"A Lv {aLv}";
+            if (bLevelText != null) bLevelText.text = $"B Lv {bLv}";
+
+            // 이벤트 재발동 방지
+            if (toggleA != null) toggleA.SetIsOnWithoutNotify(sel == UltimateSlot.A);
+            if (toggleB != null) toggleB.SetIsOnWithoutNotify(sel == UltimateSlot.B);
+
+            if (aPlus != null) aPlus.interactable = (pts > 0 && aLv < 5);
+            if (aMinus != null) aMinus.interactable = (aLv > 0);
+
+            if (bPlus != null) bPlus.interactable = (pts > 0 && bLv < 5);
+            if (bMinus != null) bMinus.interactable = (bLv > 0);
+
+            if (jobDropdown != null)
+            {
+                int idx = JobToIndex(_job);
+                if (jobDropdown.value != idx)
+                {
+                    jobDropdown.SetValueWithoutNotify(idx);
+                    jobDropdown.RefreshShownValue();
+                }
+            }
+        }
+
+        private static int JobToIndex(JobType job)
+        {
+            return job switch
+            {
+                JobType.Knight => 0,
+                JobType.Archer => 1,
+                JobType.Mage => 2,
+                JobType.Fighter => 3,
+                _ => 4
+            };
+        }
+
+        private static JobType IndexToJob(int idx)
+        {
+            return idx switch
             {
                 0 => JobType.Knight,
                 1 => JobType.Archer,
@@ -68,59 +173,6 @@ namespace VSL.UI
                 3 => JobType.Fighter,
                 _ => JobType.SpiritMaster
             };
-            Refresh();
-        }
-
-        private void SetSelected(int slot)
-        {
-            var d = UltimateMetaStore.Get(_job);
-            d.selectedSlot = slot;
-            UltimateMetaStore.Save(_job, d);
-            Refresh();
-        }
-
-        private void AddLevel(bool isA, int delta)
-        {
-            var d = UltimateMetaStore.Get(_job);
-
-            // 포인트가 있어야 + 가능
-            if (delta > 0)
-            {
-                if (d.points <= 0) return;
-                if (isA && d.levelA >= 5) return;
-                if (!isA && d.levelB >= 5) return;
-
-                d.points -= 1;
-                if (isA) d.levelA += 1;
-                else d.levelB += 1;
-            }
-            else
-            {
-                // - 하면 포인트 환급
-                if (isA && d.levelA <= 0) return;
-                if (!isA && d.levelB <= 0) return;
-
-                d.points += 1;
-                if (isA) d.levelA -= 1;
-                else d.levelB -= 1;
-            }
-
-            d.levelA = Mathf.Clamp(d.levelA, 0, 5);
-            d.levelB = Mathf.Clamp(d.levelB, 0, 5);
-            UltimateMetaStore.Save(_job, d);
-            Refresh();
-        }
-
-        private void Refresh()
-        {
-            var d = UltimateMetaStore.Get(_job);
-
-            if (pointsText != null) pointsText.text = $"Points: {d.points}";
-            if (aLevelText != null) aLevelText.text = $"A Lv {d.levelA}";
-            if (bLevelText != null) bLevelText.text = $"B Lv {d.levelB}";
-
-            if (toggleA != null) toggleA.isOn = (d.selectedSlot == 0);
-            if (toggleB != null) toggleB.isOn = (d.selectedSlot == 1);
         }
     }
 }

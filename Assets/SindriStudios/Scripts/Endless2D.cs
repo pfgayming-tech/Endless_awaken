@@ -1,5 +1,5 @@
 //15/SEPT/2021
-//José Pablo Peñaloza Cobos
+//Jos?Pablo Pe?loza Cobos
 //This script is the manager for the tiles taht appear on gameplay. It access a Tilepooler in order to avoid instanciate and destroy methods. 
 using System.Collections.Generic;
 using UnityEngine;

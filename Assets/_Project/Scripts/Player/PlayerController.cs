@@ -13,6 +13,12 @@ namespace VSL
         {
             _rb = GetComponent<Rigidbody2D>();
             _stats = GetComponent<PlayerStats>();
+
+            // ✅ 카메라/이동 '틱틱' 튐 완화: 보간 켜기
+            _rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            _rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            _rb.freezeRotation = true;
+            _rb.gravityScale = 0f;
         }
 
         private void Start()

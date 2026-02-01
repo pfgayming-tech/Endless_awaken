@@ -6836,15 +6836,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jobDropdown: {fileID: 1356806014}
-  pointsText: {fileID: 55950591}
+  pointsText: {fileID: 0}
   aLevelText: {fileID: 15856246}
   bLevelText: {fileID: 1836370097}
   toggleA: {fileID: 1342899053}
   toggleB: {fileID: 440172864}
   aPlus: {fileID: 496286877}
   aMinus: {fileID: 1609607243}
-  bPlus: {fileID: 1338907218}
-  bMinus: {fileID: 357214114}
+  bPlus: {fileID: 357214114}
+  bMinus: {fileID: 1338907218}
 --- !u!1 &1415956097
 GameObject:
   m_ObjectHideFlags: 0

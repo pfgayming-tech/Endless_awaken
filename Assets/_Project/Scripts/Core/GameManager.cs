@@ -149,13 +149,8 @@ namespace VSL
 
             if (_spawner != null)
             {
-
                 _spawner.Begin(_player.transform);
-            }
-         
-            _spawner.Begin(_player.transform);
-
-            Time.timeScale = 1f;
+            }Time.timeScale = 1f;
             Time.fixedDeltaTime = 0.02f;
         }
 

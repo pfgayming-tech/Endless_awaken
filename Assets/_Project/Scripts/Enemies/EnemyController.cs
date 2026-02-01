@@ -114,6 +114,9 @@ namespace VSL
             if (GameManager.Instance != null)
                 GameManager.Instance.AddXP(xpValue);
 
+
+            // ✅ 적 처치 이벤트(궁극기 게이지/킬연장 등에 사용)
+            GameEvents.RaiseEnemyKilled(transform.position);
             Destroy(gameObject);
         }
 

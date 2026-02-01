@@ -198,6 +198,9 @@ namespace VSL
                 }
             }
 
+            // ✅ 공격 트리거 이벤트(궁극기 시스템 등)
+            WeaponTriggerHub.RaiseAttackTriggered(gameObject, target, damage);
+
             // 3) 마법사 궁극기 “에코(지연 1회 추가 발사)” 느낌을 AutoShooter에서도 구현 가능
             //    (버프가 켜져 있으면, 일정 확률로 같은 타겟에게 딜 약한 탄을 지연 발사)
             if (buffs != null && buffs.echoEnabled && buffs.echoChance > 0f)
@@ -440,7 +443,61 @@ namespace VSL
 
         internal void FireExtraHomingBursts(Transform target, int totalExtra, float extraDmg, float homingSharpness, float spreadAngle)
         {
-            throw new System.NotImplementedException();
+            if (projectilePrefab == null) return;
+            if (_stats == null) _stats = GetComponent<PlayerStats>();
+            if (_stats == null) return;
+
+            // 타겟이 죽었거나 범위 밖이면 가장 가까운 적으로 재선정
+            Transform t = IsValidEnemyTarget(target) ? target : FindNearestEnemyRoot();
+            if (t == null) return;
+
+            Vector3 origin = FirePos;
+
+            // 목표 좌표는 콜라이더 중심
+            Vector2 aimPos = GetAimPoint(t);
+            Vector2 to = aimPos - (Vector2)origin;
+            if (to.sqrMagnitude < 0.0001f) to = Vector2.right;
+
+            Vector2 baseDir = to.normalized;
+
+            // 속도/관통은 현재 스탯 + 버프 기준으로
+            float spdMult = (buffs != null) ? buffs.projectileSpeedMult : 1f;
+            int pierceBonus = (buffs != null) ? buffs.pierceBonus : 0;
+
+            float speed = Mathf.Max(minProjectileSpeed, _stats.projectileSpeed * Mathf.Max(0.01f, spdMult));
+            int pierce = Mathf.Max(0, _stats.pierce + pierceBonus);
+
+            int count = Mathf.Max(1, totalExtra);
+            float spread = Mathf.Max(0f, spreadAngle);
+
+            for (int i = 0; i < count; i++)
+            {
+                // 퍼짐 각
+                float angle = 0f;
+                if (count > 1 && spread > 0f)
+                {
+                    float tt = i / (count - 1f);
+                    angle = Mathf.Lerp(-spread, spread, tt);
+                }
+
+                Vector2 dir = (Quaternion.Euler(0, 0, angle) * baseDir).normalized;
+
+                Vector3 spawnPos = origin + (Vector3)(dir * spawnForwardOffset);
+                SpawnMuzzleFlash(spawnPos);
+
+                var p = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
+
+                // extraDmg는 UltimateSystem이 이미 계산해서 넘겨줌(여기서 또 배율 적용 X)
+                p.InitHomingPierce(
+                    target: t,
+                    damage: extraDmg,
+                    speed: speed,
+                    enemyLayer: enemyLayer,
+                    homingSharpness: Mathf.Max(0f, homingSharpness),
+                    pierce: pierce,
+                    retargetRange: targetRange
+                );
+            }
         }
     }
 }

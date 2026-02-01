@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace VSL.VFX
@@ -22,11 +22,25 @@ namespace VSL.VFX
         [Header("Pool")]
         public int prewarm = 30;
 
+        [Header("Ultimate Style")]
+        [Tooltip("궁극기 활성 중일 때 데미지 팝업을 강조할지")]
+        public bool ultimateStyleEnabled = true;
+
+        [Tooltip("궁극기 활성 중 데미지 색")]
+        public Color ultimateColor = new Color(1f, 0.85f, 0.25f, 1f); // 골드
+
+        [Tooltip("궁극기 활성 중 전체 스케일 배수")]
+        public float ultimateScaleMult = 1.35f;
+
+        [Tooltip("궁극기 활성 중 폰트 크기 배수")]
+        public float ultimateFontSizeMult = 1.15f;
+
         [Header("Debug")]
         public bool debugLog = false;
 
         Canvas _canvas;
         RectTransform _container;
+        bool _ultimateActive;
 
         readonly Queue<DamagePopupUI> _pool = new Queue<DamagePopupUI>(128);
 
@@ -84,6 +98,12 @@ namespace VSL.VFX
             if (I == this) I = null;
         }
 
+        /// <summary>UltimateSystem에서 ON/OFF 해주면 됨</summary>
+        public void SetUltimateActive(bool active)
+        {
+            _ultimateActive = active;
+        }
+
         DamagePopupUI CreateOne()
         {
             var go = Instantiate(popupPrefab, _container);
@@ -117,7 +137,22 @@ namespace VSL.VFX
             _pool.Enqueue(p);
         }
 
+        // ✅ 기존 호출 유지(Health.cs에서 이걸 씀)
         public void Show(int amount, Vector3 worldPos)
+        {
+            if (_ultimateActive && ultimateStyleEnabled)
+                ShowInternal(amount, worldPos, ultimateColor, ultimateScaleMult, ultimateFontSizeMult);
+            else
+                ShowInternal(amount, worldPos, null, 1f, 1f);
+        }
+
+        // 원하면 다른 곳에서 직접 호출 가능
+        public void ShowStyled(int amount, Vector3 worldPos, Color color, float scaleMult = 1f, float fontSizeMult = 1f)
+        {
+            ShowInternal(amount, worldPos, color, scaleMult, fontSizeMult);
+        }
+
+        void ShowInternal(int amount, Vector3 worldPos, Color? colorOverride, float scaleMult, float fontSizeMult)
         {
             if (_canvas == null || _container == null || popupPrefab == null) return;
             if (worldCamera == null) worldCamera = Camera.main;
@@ -131,7 +166,7 @@ namespace VSL.VFX
             if (_canvas.renderMode != RenderMode.ScreenSpaceOverlay)
                 uiCam = (_canvas.worldCamera != null) ? _canvas.worldCamera : worldCamera;
 
-            // ✅ "Canvas(RectTransform) 기준" 로컬 좌표로 변환
+            // Canvas(RectTransform) 기준 로컬 좌표로 변환
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvasRect,
                 sp,
@@ -143,10 +178,14 @@ namespace VSL.VFX
             if (p == null) return;
 
             p.transform.SetParent(_container, false);
-            p.Play(amount, localPos);
+
+            if (colorOverride.HasValue || scaleMult != 1f || fontSizeMult != 1f)
+                p.PlayStyled(amount, localPos, colorOverride, scaleMult, fontSizeMult);
+            else
+                p.Play(amount, localPos);
 
             if (debugLog)
-                Debug.Log($"[DamagePopupUIPool] Show amount={amount} localPos={localPos} renderMode={_canvas.renderMode}");
+                Debug.Log($"[DamagePopupUIPool] Show amount={amount} localPos={localPos} ultimateActive={_ultimateActive}");
         }
     }
 }
